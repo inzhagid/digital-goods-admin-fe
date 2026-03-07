@@ -12,13 +12,7 @@ const statusVariant = {
   pending: "pending",
 };
 
-const statusLabel = {
-  success: "Success",
-  failed: "Failed",
-  pending: "Pending",
-};
-
-export function Badge({ status }) {
+export function Badge({ status, label }) {
   const variant = statusVariant[status] ?? "pending";
   return (
     <span
@@ -27,7 +21,7 @@ export function Badge({ status }) {
         variants[variant],
       )}
     >
-      {statusLabel[status] ?? status}
+      {label ?? status}
     </span>
   );
 }

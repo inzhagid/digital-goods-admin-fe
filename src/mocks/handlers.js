@@ -1,7 +1,9 @@
 import { http, HttpResponse } from "msw";
 import { transactions } from "./data/transactions";
+import { suppliers } from "./data/suppliers";
 
 export const handlers = [
+  // Transactions
   http.get("/api/transactions", ({ request }) => {
     const url = new URL(request.url);
 
@@ -22,7 +24,7 @@ export const handlers = [
     });
 
     const total = filteredTransactions.length;
-    const totalPages = Math.ceil(total / pageSizeNumber);
+    const totalPages = Math.max(1, Math.ceil(total / pageSizeNumber));
 
     const start = (pageNumber - 1) * pageSizeNumber;
     const end = start + pageSizeNumber;
@@ -31,6 +33,45 @@ export const handlers = [
 
     return HttpResponse.json({
       data: paginatedTransactions,
+      meta: {
+        page: pageNumber,
+        pageSize: pageSizeNumber,
+        total: total,
+        totalPages: totalPages,
+      },
+    });
+  }),
+
+  // Suppliers
+  http.get("/api/suppliers", ({ request }) => {
+    const url = new URL(request.url);
+
+    const page = url.searchParams.get("page");
+    const pageSize = url.searchParams.get("pageSize");
+    const q = url.searchParams.get("q") || "";
+
+    const pageNumber = Number(page) || 1;
+    const pageSizeNumber = Number(pageSize) || 5;
+    const search = q.toLowerCase();
+
+    const filteredSuppliers = suppliers.filter((s) => {
+      return (
+        s.name.toLowerCase().includes(search) ||
+        s.contactName.toLowerCase().includes(search) ||
+        s.phone.toLowerCase().includes(search)
+      );
+    });
+
+    const total = filteredSuppliers.length;
+    const totalPages = Math.max(1, Math.ceil(total / pageSizeNumber));
+
+    const start = (pageNumber - 1) * pageSizeNumber;
+    const end = start + pageSizeNumber;
+
+    const paginatedSuppliers = filteredSuppliers.slice(start, end);
+
+    return HttpResponse.json({
+      data: paginatedSuppliers,
       meta: {
         page: pageNumber,
         pageSize: pageSizeNumber,

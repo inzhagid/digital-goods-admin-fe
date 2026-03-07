@@ -116,7 +116,7 @@ export default function TransactionsPage() {
                   <td className="px-4 py-4">{trx.product}</td>
                   <td className="px-4 py-4">{formatIDR(trx.total)}</td>
                   <td className="px-4 py-4">
-                    <Badge status={trx.status} />
+                    <Badge status={trx.status} label={trx.status} />
                   </td>
                 </tr>
               ))}
