@@ -5,6 +5,7 @@ import App from "./App.jsx";
 import { BrowserRouter } from "react-router-dom";
 import { AuthProvider } from "./app/auth/AuthContext.jsx";
 import { worker } from "./mocks/browser.js";
+import { ToastProvider } from "./app/toast/ToastContext.jsx";
 
 const enableMocking = async () => {
   if (!import.meta.env.DEV) return;
@@ -15,9 +16,11 @@ enableMocking().then(() => {
   createRoot(document.getElementById("root")).render(
     <StrictMode>
       <BrowserRouter>
-        <AuthProvider>
-          <App />
-        </AuthProvider>
+        <ToastProvider>
+          <AuthProvider>
+            <App />
+          </AuthProvider>
+        </ToastProvider>
       </BrowserRouter>
     </StrictMode>,
   );

@@ -6,9 +6,11 @@ import Input from "../components/ui/Input";
 import { Badge } from "../components/ui/Badge";
 import { formatIDR } from "../lib/formatIDR";
 import { formatDateTime } from "../lib/formatDateTime";
+import { useSearchParams } from "react-router-dom";
 
 export default function TransactionsPage() {
   const { user } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -17,6 +19,60 @@ export default function TransactionsPage() {
   const [meta, setMeta] = useState(null);
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
+
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [channelFilter, setChannelFilter] = useState("all");
+
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
+
+  useEffect(() => {
+    const q = searchParams.get("q") ?? "";
+    const status = searchParams.get("status") ?? "all";
+    const channel = searchParams.get("channel") ?? "all";
+    const from = searchParams.get("from") ?? "";
+    const to = searchParams.get("to") ?? "";
+    const pageParam = Number(searchParams.get("page") ?? 1);
+
+    setQuery(q);
+    setDebouncedQuery(q);
+    setStatusFilter(status);
+    setChannelFilter(channel);
+    setFromDate(from);
+    setToDate(to);
+    setPage(Number.isFinite(pageParam) && pageParam >= 1 ? pageParam : 1);
+  }, []);
+
+  useEffect(() => {
+    const next = new URLSearchParams();
+
+    if (debouncedQuery) next.set("q", debouncedQuery);
+
+    if (statusFilter && statusFilter !== "all")
+      next.set("status", statusFilter);
+    if (channelFilter && channelFilter !== "all")
+      next.set("channel", channelFilter);
+
+    if (fromDate) next.set("from", fromDate);
+    if (toDate) next.set("to", toDate);
+
+    if (page && page !== 1) next.set("page", String(page));
+
+    const currentStr = searchParams.toString();
+    const nextStr = next.toString();
+    if (currentStr === nextStr) return;
+
+    setSearchParams(next, { replace: true });
+  }, [
+    debouncedQuery,
+    statusFilter,
+    channelFilter,
+    fromDate,
+    toDate,
+    page,
+    searchParams.toString(),
+    setSearchParams,
+  ]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -27,7 +83,7 @@ export default function TransactionsPage() {
 
       try {
         const result = await apiFetch(
-          `/api/transactions?page=${page}&pageSize=5&q=${encodeURIComponent(debouncedQuery)}`,
+          `/api/transactions?page=${page}&pageSize=5&q=${encodeURIComponent(debouncedQuery)}&status=${statusFilter}&channel=${channelFilter}&from=${fromDate}&to=${toDate}`,
           { signal: controller.signal },
         );
         setData(result.data);
@@ -42,7 +98,7 @@ export default function TransactionsPage() {
 
     fetchTransactions();
     return () => controller.abort();
-  }, [page, debouncedQuery]);
+  }, [page, debouncedQuery, statusFilter, channelFilter, fromDate, toDate]);
 
   useEffect(() => {
     const id = setTimeout(() => {
@@ -56,8 +112,7 @@ export default function TransactionsPage() {
     if (page !== 1) {
       setPage(1);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedQuery]);
+  }, [debouncedQuery, statusFilter, channelFilter, fromDate, toDate]);
 
   return (
     <div className="flex flex-col gap-6">
@@ -66,6 +121,7 @@ export default function TransactionsPage() {
           <h2 className="font-semibold text-xl text-gray-900">Transactions</h2>
           <p className="text-sm text-gray-500">Manage your transactions</p>
         </div>
+
         <div className="w-72">
           <Input
             placeholder="Search invoice / customer / product"
@@ -73,7 +129,55 @@ export default function TransactionsPage() {
             onChange={(e) => setQuery(e.target.value)}
           />
         </div>
+
         {user?.role === "admin" && <Button>Add Transactions</Button>}
+      </div>
+
+      <div className="flex items-center gap-3">
+        <div className="w-44">
+          <label className="block text-xs text-gray-500 mb-1">Status</label>
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="w-full text-sm px-3 py-2 rounded border border-gray-300 transition-colors focus:outline-none focus:ring-blue-500 focus:ring-2 focus:border-transparent"
+          >
+            <option value="all">All</option>
+            <option value="success">Success</option>
+            <option value="pending">Pending</option>
+            <option value="failed">Failed</option>
+          </select>
+        </div>
+
+        <div className="w-44">
+          <label className="block text-xs text-gray-500 mb-1">Channel</label>
+          <select
+            value={channelFilter}
+            onChange={(e) => setChannelFilter(e.target.value)}
+            className="w-full text-sm px-3 py-2 rounded border border-gray-300 transition-colors focus:outline-none focus:ring-blue-500 focus:ring-2 focus:border-transparent"
+          >
+            <option value="all">All</option>
+            <option value="b2b">B2B</option>
+            <option value="b2c">B2C</option>
+          </select>
+        </div>
+
+        <div className="w-44">
+          <label className="block text-xs text-gray-500 mb-1">From</label>
+          <Input
+            type="date"
+            value={fromDate}
+            onChange={(e) => setFromDate(e.target.value)}
+          />
+        </div>
+
+        <div className="w-44">
+          <label className="block text-xs text-gray-500 mb-1">To</label>
+          <Input
+            type="date"
+            value={toDate}
+            onChange={(e) => setToDate(e.target.value)}
+          />
+        </div>
       </div>
 
       <div className="bg-white rounded-lg border border-gray-200 p-6 text-sm text-gray-500">
@@ -103,6 +207,9 @@ export default function TransactionsPage() {
                   Total
                 </th>
                 <th className="text-left px-4 py-3 font-medium text-gray-600">
+                  Channel
+                </th>
+                <th className="text-left px-4 py-3 font-medium text-gray-600">
                   Status
                 </th>
               </tr>
@@ -115,6 +222,7 @@ export default function TransactionsPage() {
                   <td className="px-4 py-4">{trx.customerName}</td>
                   <td className="px-4 py-4">{trx.product}</td>
                   <td className="px-4 py-4">{formatIDR(trx.total)}</td>
+                  <td className="px-4 py-4">{trx.channel}</td>
                   <td className="px-4 py-4">
                     <Badge status={trx.status} label={trx.status} />
                   </td>

@@ -14,7 +14,7 @@ export const transactions = [
   {
     id: "tx_1002",
     invoice: "INV-2026-0002",
-    createdAt: "2026-03-01T10:18:00.000Z",
+    createdAt: "2026-03-02T10:18:00.000Z",
     customerName: "Rina Salsabila",
     channel: "B2C",
     product: "Free Fire Diamonds 140",
@@ -26,7 +26,7 @@ export const transactions = [
   {
     id: "tx_1003",
     invoice: "INV-2026-0003",
-    createdAt: "2026-03-01T10:25:00.000Z",
+    createdAt: "2026-10-01T10:25:00.000Z",
     customerName: "CV Sinar Jaya",
     channel: "B2B",
     product: "Garena Shell 33",
@@ -38,7 +38,7 @@ export const transactions = [
   {
     id: "tx_1004",
     invoice: "INV-2026-0004",
-    createdAt: "2026-03-01T10:31:00.000Z",
+    createdAt: "2026-05-20T10:31:00.000Z",
     customerName: "Budi Santoso",
     channel: "B2C",
     product: "PUBG UC 60",
@@ -50,7 +50,7 @@ export const transactions = [
   {
     id: "tx_1005",
     invoice: "INV-2026-0005",
-    createdAt: "2026-03-01T10:44:00.000Z",
+    createdAt: "2026-10-10T10:44:00.000Z",
     customerName: "Toko GameZone",
     channel: "B2B",
     product: "Roblox Gift Card 10 USD",
@@ -62,7 +62,7 @@ export const transactions = [
   {
     id: "tx_1006",
     invoice: "INV-2026-0006",
-    createdAt: "2026-03-01T10:58:00.000Z",
+    createdAt: "2026-10-10T10:58:00.000Z",
     customerName: "Nabila Azzahra",
     channel: "B2C",
     product: "Valorant Points 420",
@@ -74,7 +74,7 @@ export const transactions = [
   {
     id: "tx_1007",
     invoice: "INV-2026-0007",
-    createdAt: "2026-03-01T11:05:00.000Z",
+    createdAt: "2026-03-09T11:05:00.000Z",
     customerName: "PT Maju Bersama",
     channel: "B2B",
     product: "Mobile Legends Diamonds 5140",
@@ -86,7 +86,7 @@ export const transactions = [
   {
     id: "tx_1008",
     invoice: "INV-2026-0008",
-    createdAt: "2026-03-01T11:12:00.000Z",
+    createdAt: "2026-03-09T11:12:00.000Z",
     customerName: "Dewi Lestari",
     channel: "B2C",
     product: "Google Play Gift Card 50k",
@@ -98,7 +98,7 @@ export const transactions = [
   {
     id: "tx_1009",
     invoice: "INV-2026-0009",
-    createdAt: "2026-03-01T11:20:00.000Z",
+    createdAt: "2026-03-09T11:20:00.000Z",
     customerName: "Arga Wijaya",
     channel: "B2C",
     product: "Free Fire Membership Weekly",

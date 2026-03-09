@@ -7,10 +7,12 @@ import AnalyticsPage from "./pages/AnalyticsPage";
 import DashboardLayout from "./layouts/DashboardLayout";
 import NotFoundPage from "./pages/NotFoundPage";
 import ProtectedRoute from "./app/auth/ProtectedRoute";
+import { ToastContainer } from "./components/ui/ToastContainer";
 
 function App() {
   return (
     <>
+      <ToastContainer />
       <Routes>
         <Route path="/login" element={<LoginPage />} />
 

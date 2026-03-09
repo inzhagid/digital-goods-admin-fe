@@ -4,6 +4,8 @@ import Input from "../components/ui/Input";
 import { useAuth } from "../app/auth/AuthContext";
 import Button from "../components/ui/Button";
 import { Badge } from "../components/ui/Badge";
+import { Modal } from "../components/ui/Modal";
+import { SupplierForm } from "../features/suppliers/SupplierForm";
 
 export default function SuppliersPage() {
   const { user } = useAuth();
@@ -15,6 +17,9 @@ export default function SuppliersPage() {
   const [page, setPage] = useState(1);
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(1);
+  const [editingSupplier, setEditingSupplier] = useState(null);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -39,10 +44,9 @@ export default function SuppliersPage() {
         setIsLoading(false);
       }
     }
-
     fetchSuppliers();
     return () => controller.abort();
-  }, [page, debouncedQuery]);
+  }, [page, debouncedQuery, refreshKey]);
 
   useEffect(() => {
     const id = setTimeout(() => {
@@ -70,7 +74,16 @@ export default function SuppliersPage() {
             onChange={(e) => setQuery(e.target.value)}
           />
         </div>
-        {user?.role === "admin" && <Button>Add Suppliers</Button>}
+        {user?.role === "admin" && (
+          <Button
+            onClick={() => {
+              setEditingSupplier(null);
+              setIsModalOpen(true);
+            }}
+          >
+            Add Suppliers
+          </Button>
+        )}
       </div>
 
       <div className="bg-white rounded-lg border border-gray-200 p-6 text-sm text-gray-500">
@@ -96,6 +109,11 @@ export default function SuppliersPage() {
                 <th className="text-left font-medium px-4 py-3 text-gray-600">
                   Status
                 </th>
+                {user?.role === "admin" && (
+                  <th className="text-left font-medium px-4 py-3 text-gray-600">
+                    Action
+                  </th>
+                )}
               </tr>
             </thead>
             <tbody>
@@ -110,6 +128,18 @@ export default function SuppliersPage() {
                       label={spl.isActive ? "Active" : "Non Active"}
                     />
                   </td>
+                  {user?.role === "admin" && (
+                    <td>
+                      <Button
+                        onClick={() => {
+                          setEditingSupplier(spl);
+                          setIsModalOpen(true);
+                        }}
+                      >
+                        Edit
+                      </Button>
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>
@@ -138,6 +168,20 @@ export default function SuppliersPage() {
           Next
         </Button>
       </div>
+
+      {/* Modal */}
+      {isModalOpen && (
+        <Modal onClose={() => setIsModalOpen(false)}>
+          <SupplierForm
+            initialValues={editingSupplier}
+            onSuccess={() => {
+              setIsModalOpen(false);
+              setEditingSupplier(null);
+              setRefreshKey((key) => key + 1);
+            }}
+          />
+        </Modal>
+      )}
     </div>
   );
 }
