@@ -59,6 +59,8 @@ export default function AnalyticsPage() {
     .sort((a, b) => b.total - a.total)
     .slice(0, 5);
 
+  const maxDaily = daily.reduce((max, d) => Math.max(max, d.total), 0);
+
   useEffect(() => {
     async function fetchTransactions() {
       const result = await apiFetch(
@@ -114,6 +116,35 @@ export default function AnalyticsPage() {
                   <span className="font-semibold">{formatIDR(d.total)}</span>
                 </div>
               ))}
+            </div>
+
+            <div className="mt-4">
+              <div className="h-24 flex items-end gap-2">
+                {daily.map((d) => {
+                  const heightPct =
+                    maxDaily === 0 ? 0 : (d.total / maxDaily) * 100;
+                  return (
+                    <div
+                      key={d.date}
+                      className="flex-1 flex flex-col items-center gap-1"
+                    >
+                      <div className="w-full bg-gray-100 rounded h-full flex items-end">
+                        <div
+                          className="w-full rounded bg-blue-500"
+                          style={{
+                            height: `${heightPct}%`,
+                            minHeight: d.total > 0 ? 4 : 0,
+                          }}
+                          title={`${d.date} • ${formatIDR(d.total)}`}
+                        />
+                      </div>
+                      <div className="text-[10px] text-gray-500">
+                        {d.date.slice(8, 10)}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </CardContent>
         </Card>

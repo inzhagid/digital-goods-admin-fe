@@ -7,6 +7,7 @@ import { Badge } from "../components/ui/Badge";
 import { formatIDR } from "../lib/formatIDR";
 import { formatDateTime } from "../lib/formatDateTime";
 import { useSearchParams } from "react-router-dom";
+import { Modal } from "../components/ui/Modal";
 
 export default function TransactionsPage() {
   const { user } = useAuth();
@@ -25,6 +26,23 @@ export default function TransactionsPage() {
 
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
+
+  const [selectedTrx, setSelectedTrx] = useState(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+
+  const closeDetail = () => {
+    setIsDetailOpen(false);
+    setSelectedTrx(null);
+  };
+
+  const DetailRow = ({ label, value }) => {
+    return (
+      <div className="flex items-start justify-between gap-6">
+        <div className="text-xs text-gray-500">{label}</div>
+        <div className="text-sm text-gray-700 text-right">{value}</div>
+      </div>
+    );
+  };
 
   useEffect(() => {
     const q = searchParams.get("q") ?? "";
@@ -216,7 +234,15 @@ export default function TransactionsPage() {
             </thead>
             <tbody>
               {data.map((trx) => (
-                <tr key={trx.id} className="border-t">
+                <tr
+                  key={trx.id}
+                  className="border-t cursor-pointer hover:bg-gray-50"
+                  onClick={() => {
+                    setSelectedTrx(trx);
+                    setIsDetailOpen(true);
+                    console.log(trx.invoice);
+                  }}
+                >
                   <td className="px-4 py-4">{trx.invoice}</td>
                   <td className="px-4 py-4">{formatDateTime(trx.createdAt)}</td>
                   <td className="px-4 py-4">{trx.customerName}</td>
@@ -254,6 +280,47 @@ export default function TransactionsPage() {
           Next
         </Button>
       </div>
+
+      {/* Modal */}
+      {isDetailOpen && selectedTrx && (
+        <Modal onClose={closeDetail}>
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">
+                Transaction Detail
+              </h3>
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="text-sm font-medium text-gray-900">
+                  {selectedTrx.invoice}
+                </div>
+                <div className="flex items-center gap-2">
+                  <Badge
+                    status={selectedTrx.status}
+                    label={selectedTrx.status}
+                  />
+                  <span className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-700">
+                    {selectedTrx.channel}
+                  </span>
+                </div>
+              </div>
+
+              <div className="border-t pt-3 space-y-2">
+                <DetailRow label="Customer" value={selectedTrx.customerName} />
+                <DetailRow label="Product" value={selectedTrx.product} />
+                <DetailRow label="Qty" value={String(selectedTrx.qty)} />
+                <DetailRow label="Total" value={formatIDR(selectedTrx.total)} />
+                <DetailRow
+                  label="Date"
+                  value={formatDateTime(selectedTrx.createdAt)}
+                />
+              </div>
+            </div>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }
